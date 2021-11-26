@@ -397,7 +397,7 @@ func TestDumpUpgradeInfoToFile(t *testing.T) {
 		Height: 0, // this should be overwritten by DumpUpgradeInfoToFile
 	}
 	t.Log("verify if upgrade height is dumped to file")
-	err = s.keeper.DumpUpgradeInfoToDisk(planHeight, plan)
+	err = s.keeper.DumpUpgradeInfoToDisk(planHeight, plan.Name)
 	require.Nil(err)
 
 	upgradeInfo, err := s.keeper.ReadUpgradeInfoFromDisk()
