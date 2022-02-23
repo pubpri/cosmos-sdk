@@ -36,23 +36,20 @@ func GenerateSaveCoinKeyFromPath(keybase keyring.Keyring, keyName string, overwr
 
 	// ensure no overwrite
 	if !overwrite && exists {
-		return sdk.AccAddress([]byte{}), "", fmt.Errorf(
-			"key already exists, overwrite is disabled")
+		return sdk.AccAddress{}, "", fmt.Errorf("key already exists, overwrite is disabled")
 	}
 
-	// generate a private key, with recovery phrase
+	// remove the old key by name if it exists
 	if exists {
-		err = keybase.Delete(keyName)
-		if err != nil {
-			return sdk.AccAddress([]byte{}), "", fmt.Errorf(
-				"failed to overwrite key")
+		if err := keybase.Delete(keyName); err != nil {
+			return sdk.AccAddress{}, "", fmt.Errorf("failed to overwrite key")
 		}
 	}
 
-	info, secret, err := keybase.NewMnemonic(keyName, keyring.English, path, keyring.DefaultBIP39Passphrase, algo)
+	k, mnemonic, err := keybase.NewMnemonic(keyName, keyring.English, sdk.GetConfig().GetFullBIP44Path(), keyring.DefaultBIP39Passphrase, algo)
 	if err != nil {
-		return sdk.AccAddress([]byte{}), "", err
+		return sdk.AccAddress{}, "", err
 	}
 
-	return sdk.AccAddress(info.GetPubKey().Address()), secret, nil
+	return sdk.AccAddress(k.GetAddress()), mnemonic, nil
 }
